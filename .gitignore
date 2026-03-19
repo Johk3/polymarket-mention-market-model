@@ -26,3 +26,8 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Local AI tooling — do not commit
+/docs/
+/.claude/
+CLAUDE.md
