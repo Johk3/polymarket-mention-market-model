@@ -1,0 +1,17 @@
+pre-commit:
+  parallel: true
+  commands:
+    php-lint:
+      glob: "**/*.php"
+      run: composer lint
+      stage_fixed: true
+    js-lint:
+      glob: "**/*.{js,ts,jsx,tsx}"
+      run: npm run lint
+      stage_fixed: true
+    js-format:
+      glob: "**/*.{js,ts,jsx,tsx,css}"
+      run: npm run format
+      stage_fixed: true
+    js-types:
+      run: npm run types:check
