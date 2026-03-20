@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { BarChart2, BookOpen, FolderGit2, LayoutGrid, Radio, TrendingUp } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -13,8 +13,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
+import { dashboard } from '@/routes';
 
 const mainNavItems: NavItem[] = [
     {
@@ -22,6 +22,9 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    { title: 'Markets', href: '/markets', icon: TrendingUp },
+    { title: 'Analysis', href: '/analysis', icon: BarChart2 },
+    { title: 'Live', href: '/live', icon: Radio },
 ];
 
 const footerNavItems: NavItem[] = [
