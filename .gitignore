@@ -31,3 +31,9 @@ yarn-error.log
 /docs/
 /.claude/
 CLAUDE.md
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
