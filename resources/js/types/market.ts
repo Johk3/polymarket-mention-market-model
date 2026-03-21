@@ -16,6 +16,7 @@ export interface Market {
     volume: number;
     liquidity: number;
     target_phrase: string | null;
+    model_probability?: number;
 }
 
 export interface PricePoint {

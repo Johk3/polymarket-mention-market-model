@@ -6,9 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import type { LiveStatus, Market } from '@/types/market';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Markets', href: '/markets' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Markets', href: '/markets' }];
 
 const MOCK_MARKETS: Market[] = [
     {
@@ -25,6 +23,7 @@ const MOCK_MARKETS: Market[] = [
         volume: 48200,
         liquidity: 12000,
         target_phrase: 'tariffs',
+        model_probability: 0.64,
     },
     {
         condition_id: 'mock-2',
@@ -40,6 +39,7 @@ const MOCK_MARKETS: Market[] = [
         volume: 32500,
         liquidity: 8400,
         target_phrase: 'wall',
+        model_probability: 0.55,
     },
     {
         condition_id: 'mock-3',
@@ -55,6 +55,7 @@ const MOCK_MARKETS: Market[] = [
         volume: 61000,
         liquidity: 18200,
         target_phrase: 'China',
+        model_probability: 0.78,
     },
     {
         condition_id: 'mock-4',
@@ -70,6 +71,7 @@ const MOCK_MARKETS: Market[] = [
         volume: 27800,
         liquidity: 9100,
         target_phrase: 'deal',
+        model_probability: 0.71,
     },
     {
         condition_id: 'mock-5',
@@ -85,6 +87,7 @@ const MOCK_MARKETS: Market[] = [
         volume: 19400,
         liquidity: 5600,
         target_phrase: 'great',
+        model_probability: 0.83,
     },
 ];
 
@@ -97,7 +100,10 @@ interface MarketsProps {
     liveStatus?: LiveStatus;
 }
 
-export default function Markets({ markets = MOCK_MARKETS, liveStatus = MOCK_LIVE_STATUS }: MarketsProps) {
+export default function Markets({
+    markets = MOCK_MARKETS,
+    liveStatus = MOCK_LIVE_STATUS,
+}: MarketsProps) {
     const activeMarkets = markets.filter((m) => m.active && !m.closed);
 
     return (
@@ -111,35 +117,67 @@ export default function Markets({ markets = MOCK_MARKETS, liveStatus = MOCK_LIVE
                         Trump Mention Markets
                     </h1>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Prediction markets tracking phrase mentions in presidential speeches and press events.
+                        Prediction markets tracking phrase mentions in
+                        presidential speeches and press events.
                     </p>
                 </div>
 
                 {activeMarkets.length === 0 ? (
                     <div className="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50">
-                        <p className="text-sm text-slate-500 dark:text-slate-400">No active markets at this time.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            No active markets at this time.
+                        </p>
                     </div>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {activeMarkets.map((market) => (
-                            <Link key={market.condition_id} href={`/markets/${market.condition_id}`}>
+                            <Link
+                                key={market.condition_id}
+                                href={`/markets/${market.condition_id}`}
+                            >
                                 <Card className="cursor-pointer transition-shadow hover:shadow-md">
                                     <CardHeader>
-                                        <CardTitle className="text-sm leading-snug">{market.question}</CardTitle>
+                                        <CardTitle className="text-sm leading-snug">
+                                            {market.question}
+                                        </CardTitle>
                                     </CardHeader>
                                     <CardContent className="flex flex-col gap-3">
                                         <div className="flex gap-2">
                                             {market.tokens.map((token) => (
                                                 <Badge
                                                     key={token.token_id}
-                                                    variant={token.outcome === 'Yes' ? 'default' : 'secondary'}
+                                                    variant={
+                                                        token.outcome === 'Yes'
+                                                            ? 'default'
+                                                            : 'secondary'
+                                                    }
                                                 >
-                                                    {token.outcome} {(token.price * 100).toFixed(0)}¢
+                                                    {token.outcome}{' '}
+                                                    {(
+                                                        token.price * 100
+                                                    ).toFixed(0)}
+                                                    ¢
                                                 </Badge>
                                             ))}
                                         </div>
+                                        {market.model_probability !==
+                                            undefined && (
+                                            <div className="flex items-center justify-between text-xs">
+                                                <span className="text-slate-500 dark:text-slate-400">
+                                                    Model probability
+                                                </span>
+                                                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                                                    {(
+                                                        market.model_probability *
+                                                        100
+                                                    ).toFixed(0)}
+                                                    %
+                                                </span>
+                                            </div>
+                                        )}
                                         <div className="text-xs text-slate-500 dark:text-slate-400">
-                                            Volume: ${market.volume.toLocaleString()}
+                                            Volume: $
+                                            {market.volume.toLocaleString()}
                                         </div>
                                     </CardContent>
                                 </Card>

@@ -1,9 +1,20 @@
 import { Head } from '@inertiajs/react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Analysis', href: '/analysis' }];
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Analysis', href: '/analysis' },
+];
 
 // Mock mention-frequency data (mentions per phrase)
 const FREQUENCY_DATA = [
@@ -16,9 +27,6 @@ const FREQUENCY_DATA = [
     { phrase: 'jobs', count: 41 },
 ];
 
-const MAX_COUNT = FREQUENCY_DATA[0].count;
-
-// Mock model accuracy by phrase
 const ACCURACY_DATA = [
     { phrase: 'tariffs', predicted: 0.62, actual: 1, correct: true },
     { phrase: 'China', predicted: 0.78, actual: 1, correct: true },
@@ -34,7 +42,10 @@ const accuracy = (correct / ACCURACY_DATA.length) * 100;
 
 // Brier score (lower is better)
 const brierScore =
-    ACCURACY_DATA.reduce((sum, d) => sum + Math.pow(d.predicted - d.actual, 2), 0) / ACCURACY_DATA.length;
+    ACCURACY_DATA.reduce(
+        (sum, d) => sum + Math.pow(d.predicted - d.actual, 2),
+        0,
+    ) / ACCURACY_DATA.length;
 
 export default function Analysis() {
     return (
@@ -42,9 +53,12 @@ export default function Analysis() {
             <Head title="Analysis" />
             <div className="flex flex-1 flex-col gap-6 p-6">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Analysis</h1>
+                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+                        Analysis
+                    </h1>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Model performance metrics and mention-frequency breakdown.
+                        Model performance metrics and mention-frequency
+                        breakdown.
                     </p>
                 </div>
 
@@ -52,7 +66,9 @@ export default function Analysis() {
                 <Card>
                     <CardContent className="flex flex-wrap gap-4 pt-5">
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Date range</label>
+                            <label className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                Date range
+                            </label>
                             <select className="rounded border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                                 <option>Last 7 days</option>
                                 <option>Last 30 days</option>
@@ -60,7 +76,9 @@ export default function Analysis() {
                             </select>
                         </div>
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Keyword</label>
+                            <label className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                Keyword
+                            </label>
                             <input
                                 type="text"
                                 placeholder="e.g. tariffs"
@@ -74,7 +92,9 @@ export default function Analysis() {
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card>
                         <CardContent className="pt-6">
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Overall Accuracy</p>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                Overall Accuracy
+                            </p>
                             <p className="mt-1 text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                                 {accuracy.toFixed(0)}%
                             </p>
@@ -82,7 +102,9 @@ export default function Analysis() {
                     </Card>
                     <Card>
                         <CardContent className="pt-6">
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Brier Score</p>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                Brier Score
+                            </p>
                             <p className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
                                 {brierScore.toFixed(3)}
                             </p>
@@ -90,7 +112,9 @@ export default function Analysis() {
                     </Card>
                     <Card>
                         <CardContent className="pt-6">
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Outcomes Evaluated</p>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                Outcomes Evaluated
+                            </p>
                             <p className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
                                 {ACCURACY_DATA.length}
                             </p>
@@ -98,46 +122,76 @@ export default function Analysis() {
                     </Card>
                 </div>
 
-                {/* Mention-frequency histogram */}
+                {/* Mention-frequency bar chart */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Mention Frequency by Phrase</CardTitle>
+                        <CardTitle className="text-base">
+                            Mention Frequency by Phrase
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex flex-col gap-2">
-                            {FREQUENCY_DATA.map((d) => (
-                                <div key={d.phrase} className="flex items-center gap-3">
-                                    <span className="w-20 text-right font-mono text-xs text-slate-600 dark:text-slate-400">
-                                        {d.phrase}
-                                    </span>
-                                    <div className="relative flex-1 rounded bg-slate-100 dark:bg-slate-800" style={{ height: 20 }}>
-                                        <div
-                                            className="h-full rounded bg-blue-500 dark:bg-blue-600"
-                                            style={{ width: `${(d.count / MAX_COUNT) * 100}%` }}
-                                        />
-                                    </div>
-                                    <span className="w-8 text-xs font-medium text-slate-600 dark:text-slate-400">
-                                        {d.count}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
+                        <ResponsiveContainer width="100%" height={200}>
+                            <BarChart
+                                data={FREQUENCY_DATA}
+                                margin={{
+                                    top: 4,
+                                    right: 16,
+                                    bottom: 4,
+                                    left: 0,
+                                }}
+                            >
+                                <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    className="stroke-slate-100 dark:stroke-slate-800"
+                                />
+                                <XAxis
+                                    dataKey="phrase"
+                                    tick={{ fontSize: 11 }}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    className="fill-slate-500 dark:fill-slate-400"
+                                />
+                                <YAxis
+                                    tick={{ fontSize: 11 }}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    width={32}
+                                    className="fill-slate-500 dark:fill-slate-400"
+                                />
+                                <Tooltip
+                                    formatter={(value) => [
+                                        Number(value),
+                                        'Mentions',
+                                    ]}
+                                    contentStyle={{ fontSize: 12 }}
+                                />
+                                <Bar
+                                    dataKey="count"
+                                    radius={[4, 4, 0, 0]}
+                                    className="fill-blue-500 dark:fill-blue-600"
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
 
                 {/* Predicted vs actual comparison table */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Predicted vs Actual Outcomes</CardTitle>
+                        <CardTitle className="text-base">
+                            Predicted vs Actual Outcomes
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="border-b text-left text-xs font-medium uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                                        <th className="pb-2 pr-4">Phrase</th>
-                                        <th className="pb-2 pr-4">Model Prob.</th>
-                                        <th className="pb-2 pr-4">Actual</th>
+                                    <tr className="border-b text-left text-xs font-medium tracking-wide text-slate-500 uppercase dark:border-slate-700 dark:text-slate-400">
+                                        <th className="pr-4 pb-2">Phrase</th>
+                                        <th className="pr-4 pb-2">
+                                            Model Prob.
+                                        </th>
+                                        <th className="pr-4 pb-2">Actual</th>
                                         <th className="pb-2">Correct?</th>
                                     </tr>
                                 </thead>
@@ -147,13 +201,24 @@ export default function Analysis() {
                                             key={row.phrase}
                                             className="border-b last:border-0 dark:border-slate-700"
                                         >
-                                            <td className="py-2 pr-4 font-mono text-xs">{row.phrase}</td>
-                                            <td className="py-2 pr-4">{(row.predicted * 100).toFixed(0)}%</td>
+                                            <td className="py-2 pr-4 font-mono text-xs">
+                                                {row.phrase}
+                                            </td>
+                                            <td className="py-2 pr-4">
+                                                {(row.predicted * 100).toFixed(
+                                                    0,
+                                                )}
+                                                %
+                                            </td>
                                             <td className="py-2 pr-4">
                                                 {row.actual === 1 ? (
-                                                    <span className="text-emerald-600 dark:text-emerald-400">YES</span>
+                                                    <span className="text-emerald-600 dark:text-emerald-400">
+                                                        YES
+                                                    </span>
                                                 ) : (
-                                                    <span className="text-red-500 dark:text-red-400">NO</span>
+                                                    <span className="text-red-500 dark:text-red-400">
+                                                        NO
+                                                    </span>
                                                 )}
                                             </td>
                                             <td className="py-2">
