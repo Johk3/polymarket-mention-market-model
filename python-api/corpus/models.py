@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, create_engine
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
@@ -16,7 +16,7 @@ class Speech(Base):
     title = Column(String)
     upload_date = Column(String)
     utterance_count = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     utterances = relationship("Utterance", back_populates="speech", cascade="all, delete-orphan")
 
