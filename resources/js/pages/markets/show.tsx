@@ -1,5 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
+import { MarketPriceChart } from '@/components/MarketPriceChart';
+import { ProbabilityGauge } from '@/components/ProbabilityGauge';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
@@ -42,7 +44,10 @@ const MOCK_ESTIMATE: ProbabilityEstimate = {
         "Based on historical speech patterns, 'tariffs' appears frequently in trade-related press events. Recent policy context increases the likelihood.",
 };
 
-const MOCK_MARKETS_BY_ID: Record<string, { market: Market; estimate: ProbabilityEstimate }> = {
+const MOCK_MARKETS_BY_ID: Record<
+    string,
+    { market: Market; estimate: ProbabilityEstimate }
+> = {
     'mock-1': { market: MOCK_MARKET, estimate: MOCK_ESTIMATE },
     'mock-2': {
         market: {
@@ -58,7 +63,13 @@ const MOCK_MARKETS_BY_ID: Record<string, { market: Market; estimate: Probability
             liquidity: 8400,
             end_date_iso: '2025-06-15T00:00:00Z',
         },
-        estimate: { ...MOCK_ESTIMATE, phrase: 'wall', probability: 0.55, lower_bound: 0.46, upper_bound: 0.64 },
+        estimate: {
+            ...MOCK_ESTIMATE,
+            phrase: 'wall',
+            probability: 0.55,
+            lower_bound: 0.46,
+            upper_bound: 0.64,
+        },
     },
     'mock-3': {
         market: {
@@ -74,7 +85,13 @@ const MOCK_MARKETS_BY_ID: Record<string, { market: Market; estimate: Probability
             liquidity: 18200,
             end_date_iso: '2025-07-01T00:00:00Z',
         },
-        estimate: { ...MOCK_ESTIMATE, phrase: 'China', probability: 0.78, lower_bound: 0.69, upper_bound: 0.87 },
+        estimate: {
+            ...MOCK_ESTIMATE,
+            phrase: 'China',
+            probability: 0.78,
+            lower_bound: 0.69,
+            upper_bound: 0.87,
+        },
     },
     'mock-4': {
         market: {
@@ -90,7 +107,13 @@ const MOCK_MARKETS_BY_ID: Record<string, { market: Market; estimate: Probability
             liquidity: 9100,
             end_date_iso: '2025-06-20T00:00:00Z',
         },
-        estimate: { ...MOCK_ESTIMATE, phrase: 'deal', probability: 0.71, lower_bound: 0.62, upper_bound: 0.80 },
+        estimate: {
+            ...MOCK_ESTIMATE,
+            phrase: 'deal',
+            probability: 0.71,
+            lower_bound: 0.62,
+            upper_bound: 0.8,
+        },
     },
     'mock-5': {
         market: {
@@ -106,7 +129,13 @@ const MOCK_MARKETS_BY_ID: Record<string, { market: Market; estimate: Probability
             liquidity: 5600,
             end_date_iso: '2025-05-30T00:00:00Z',
         },
-        estimate: { ...MOCK_ESTIMATE, phrase: 'great', probability: 0.83, lower_bound: 0.75, upper_bound: 0.91 },
+        estimate: {
+            ...MOCK_ESTIMATE,
+            phrase: 'great',
+            probability: 0.83,
+            lower_bound: 0.75,
+            upper_bound: 0.91,
+        },
     },
 };
 
@@ -117,59 +146,17 @@ interface ShowProps {
     estimate?: ProbabilityEstimate;
 }
 
-const CHART_W = 400;
-const CHART_H = 120;
-const PADDING = { top: 8, right: 8, bottom: 8, left: 8 };
 const MAX_BREADCRUMB_TITLE_LENGTH = 40;
 
-function ProbabilityChart({ data }: { data: PricePoint[] }) {
-    if (data.length < 2) {
-        // Need at least two points to draw a line
-        return null;
-    }
-
-    const minT = data[0].t;
-    const maxT = data[data.length - 1].t;
-    const innerW = CHART_W - PADDING.left - PADDING.right;
-    const innerH = CHART_H - PADDING.top - PADDING.bottom;
-
-    const toX = (t: number) => PADDING.left + ((t - minT) / (maxT - minT)) * innerW;
-    const toY = (p: number) => PADDING.top + (1 - p) * innerH;
-
-    const polyline = data.map((pt) => `${toX(pt.t).toFixed(1)},${toY(pt.p).toFixed(1)}`).join(' ');
-    const area =
-        `M ${toX(data[0].t).toFixed(1)},${toY(0)} ` +
-        data.map((pt) => `L ${toX(pt.t).toFixed(1)},${toY(pt.p).toFixed(1)}`).join(' ') +
-        ` L ${toX(data[data.length - 1].t).toFixed(1)},${toY(0)} Z`;
-
-    return (
-        <svg
-            viewBox={`0 0 ${CHART_W} ${CHART_H}`}
-            className="w-full"
-            preserveAspectRatio="none"
-            aria-label="Probability over time"
-        >
-            {/* 50% reference line */}
-            <line
-                x1={PADDING.left}
-                y1={toY(0.5)}
-                x2={CHART_W - PADDING.right}
-                y2={toY(0.5)}
-                className="stroke-slate-200 dark:stroke-slate-700"
-                strokeDasharray="4 3"
-                strokeWidth="1"
-            />
-            {/* Area fill */}
-            <path d={area} className="fill-blue-100 dark:fill-blue-900/30" />
-            {/* Line */}
-            <polyline points={polyline} className="fill-none stroke-blue-500 dark:stroke-blue-400" strokeWidth="2" />
-        </svg>
-    );
-}
-
-export default function MarketShow({ id, market, priceHistory, estimate }: ShowProps) {
+export default function MarketShow({
+    id,
+    market,
+    priceHistory,
+    estimate,
+}: ShowProps) {
     // Fall back to mock data when no server props are provided
-    const mockEntry = MOCK_MARKETS_BY_ID[id ?? 'mock-1'] ?? MOCK_MARKETS_BY_ID['mock-1'];
+    const mockEntry =
+        MOCK_MARKETS_BY_ID[id ?? 'mock-1'] ?? MOCK_MARKETS_BY_ID['mock-1'];
     const m = market ?? mockEntry.market;
     const est = estimate ?? mockEntry.estimate;
     const history = priceHistory ?? MOCK_PRICE_HISTORY;
@@ -179,7 +166,10 @@ export default function MarketShow({ id, market, priceHistory, estimate }: ShowP
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Markets', href: '/markets' },
-        { title: m.question.slice(0, MAX_BREADCRUMB_TITLE_LENGTH) + '…', href: `/markets/${m.condition_id}` },
+        {
+            title: m.question.slice(0, MAX_BREADCRUMB_TITLE_LENGTH) + '…',
+            href: `/markets/${m.condition_id}`,
+        },
     ];
 
     return (
@@ -187,7 +177,10 @@ export default function MarketShow({ id, market, priceHistory, estimate }: ShowP
             <Head title={m.question} />
             <div className="flex flex-1 flex-col gap-6 p-6">
                 {/* Back link */}
-                <Link href="/markets" className="flex w-fit items-center gap-1 text-sm text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
+                <Link
+                    href="/markets"
+                    className="flex w-fit items-center gap-1 text-sm text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                >
                     <ArrowLeft className="h-4 w-4" />
                     Back to Markets
                 </Link>
@@ -195,15 +188,21 @@ export default function MarketShow({ id, market, priceHistory, estimate }: ShowP
                 {/* Market header */}
                 <Card>
                     <CardContent className="pt-6">
-                        <h1 className="text-xl font-semibold text-slate-900 dark:text-white">{m.question}</h1>
+                        <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
+                            {m.question}
+                        </h1>
                         {m.description && (
-                            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{m.description}</p>
+                            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                                {m.description}
+                            </p>
                         )}
                         <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
                             <span>
                                 Ends:{' '}
                                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                                    {new Date(m.end_date_iso).toLocaleDateString()}
+                                    {new Date(
+                                        m.end_date_iso,
+                                    ).toLocaleDateString()}
                                 </span>
                             </span>
                             <span>
@@ -230,59 +229,99 @@ export default function MarketShow({ id, market, priceHistory, estimate }: ShowP
                     </CardContent>
                 </Card>
 
-                {/* Token prices + probability chart */}
-                <div className="grid gap-4 md:grid-cols-3">
-                    {/* Yes token */}
+                {/* Probability gauge + price stats */}
+                <div className="grid gap-4 md:grid-cols-2">
+                    {/* Circular gauge */}
                     <Card>
-                        <CardContent className="flex flex-col items-center justify-center pt-6">
-                            <Badge variant="default" className="mb-2 text-sm">
-                                YES
-                            </Badge>
-                            <p className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
-                                {yesToken ? (yesToken.price * 100).toFixed(0) : '--'}¢
-                            </p>
-                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">implied probability</p>
+                        <CardHeader>
+                            <CardTitle className="text-base">
+                                Model vs. Market Probability
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex justify-center pb-4">
+                            <ProbabilityGauge
+                                modelProbability={est.probability}
+                                marketPrice={yesToken?.price ?? 0.5}
+                                lowerBound={est.lower_bound}
+                                upperBound={est.upper_bound}
+                            />
                         </CardContent>
                     </Card>
 
-                    {/* No token */}
-                    <Card>
-                        <CardContent className="flex flex-col items-center justify-center pt-6">
-                            <Badge variant="secondary" className="mb-2 text-sm">
-                                NO
-                            </Badge>
-                            <p className="text-4xl font-bold text-red-500 dark:text-red-400">
-                                {noToken ? (noToken.price * 100).toFixed(0) : '--'}¢
-                            </p>
-                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">implied probability</p>
-                        </CardContent>
-                    </Card>
+                    {/* Price stats */}
+                    <div className="flex flex-col gap-4">
+                        {/* Yes token */}
+                        <Card>
+                            <CardContent className="flex flex-col items-center justify-center pt-6">
+                                <Badge
+                                    variant="default"
+                                    className="mb-2 text-sm"
+                                >
+                                    YES
+                                </Badge>
+                                <p className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
+                                    {yesToken
+                                        ? (yesToken.price * 100).toFixed(0)
+                                        : '--'}
+                                    ¢
+                                </p>
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    implied probability
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                    {/* Model estimate */}
-                    <Card>
-                        <CardContent className="flex flex-col items-center justify-center pt-6">
-                            <p className="mb-2 text-sm font-medium text-slate-500 dark:text-slate-400">Model Estimate</p>
-                            <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">
-                                {(est.probability * 100).toFixed(0)}%
-                            </p>
-                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                CI: {(est.lower_bound * 100).toFixed(0)}%–{(est.upper_bound * 100).toFixed(0)}%
-                            </p>
-                        </CardContent>
-                    </Card>
+                        {/* No token */}
+                        <Card>
+                            <CardContent className="flex flex-col items-center justify-center pt-6">
+                                <Badge
+                                    variant="secondary"
+                                    className="mb-2 text-sm"
+                                >
+                                    NO
+                                </Badge>
+                                <p className="text-4xl font-bold text-red-500 dark:text-red-400">
+                                    {noToken
+                                        ? (noToken.price * 100).toFixed(0)
+                                        : '--'}
+                                    ¢
+                                </p>
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    implied probability
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
 
-                {/* Probability over time chart */}
+                {/* Model estimate summary */}
+                <Card>
+                    <CardContent className="flex flex-col items-center justify-center pt-6">
+                        <p className="mb-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+                            Model Estimate
+                        </p>
+                        <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                            {(est.probability * 100).toFixed(0)}%
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            CI: {(est.lower_bound * 100).toFixed(0)}%–
+                            {(est.upper_bound * 100).toFixed(0)}%
+                        </p>
+                    </CardContent>
+                </Card>
+
+                {/* Price history chart */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Model Prediction Curve (14 days)</CardTitle>
+                        <CardTitle className="text-base">
+                            Model Prediction Curve (14 days)
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="rounded border border-slate-100 dark:border-slate-800">
-                            <ProbabilityChart data={history} />
-                        </div>
+                        <MarketPriceChart data={history} />
                         <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-                            Dashed line = 50% baseline. Curve shows model YES probability over time.
+                            Dashed line = 50% baseline. Curve shows model YES
+                            probability over time.
                         </p>
                     </CardContent>
                 </Card>
@@ -290,26 +329,49 @@ export default function MarketShow({ id, market, priceHistory, estimate }: ShowP
                 {/* Mention score panel */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Mention Score Panel</CardTitle>
+                        <CardTitle className="text-base">
+                            Mention Score Panel
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-4 md:grid-cols-2">
                         <div className="flex flex-col gap-3 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-slate-500 dark:text-slate-400">Base rate</span>
-                                <span className="font-medium">{(est.base_rate * 100).toFixed(0)}%</span>
+                                <span className="text-slate-500 dark:text-slate-400">
+                                    Base rate
+                                </span>
+                                <span className="font-medium">
+                                    {(est.base_rate * 100).toFixed(0)}%
+                                </span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-slate-500 dark:text-slate-400">Statistical model</span>
-                                <span className="font-medium">{(est.statistical_probability * 100).toFixed(0)}%</span>
+                                <span className="text-slate-500 dark:text-slate-400">
+                                    Statistical model
+                                </span>
+                                <span className="font-medium">
+                                    {(
+                                        est.statistical_probability * 100
+                                    ).toFixed(0)}
+                                    %
+                                </span>
                             </div>
-                            {est.llm_available && est.llm_probability !== null && (
-                                <div className="flex justify-between">
-                                    <span className="text-slate-500 dark:text-slate-400">LLM estimate</span>
-                                    <span className="font-medium">{(est.llm_probability * 100).toFixed(0)}%</span>
-                                </div>
-                            )}
+                            {est.llm_available &&
+                                est.llm_probability !== null && (
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 dark:text-slate-400">
+                                            LLM estimate
+                                        </span>
+                                        <span className="font-medium">
+                                            {(
+                                                est.llm_probability * 100
+                                            ).toFixed(0)}
+                                            %
+                                        </span>
+                                    </div>
+                                )}
                             <div className="flex justify-between border-t pt-2 dark:border-slate-700">
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">Combined</span>
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                                    Combined
+                                </span>
                                 <span className="font-bold text-blue-600 dark:text-blue-400">
                                     {(est.probability * 100).toFixed(0)}%
                                 </span>
