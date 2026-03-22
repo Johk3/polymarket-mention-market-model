@@ -153,3 +153,17 @@ def predict(request: PredictionRequest) -> PredictionResponse:
         steepness=request.steepness,
         probability=round(probability, 6),
     )
+
+
+# ---------------------------------------------------------------------------
+# Routers
+# ---------------------------------------------------------------------------
+
+from api.routes.corpus import router as corpus_router, frequencies_router
+from api.routes.probability import router as probability_router
+from corpus.models import init_db
+
+init_db()
+app.include_router(corpus_router)
+app.include_router(frequencies_router)
+app.include_router(probability_router)
