@@ -37,3 +37,6 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
+
+# Python API runtime files
+python-api/corpus.db
