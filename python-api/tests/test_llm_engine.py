@@ -79,8 +79,8 @@ def test_empty_transcript_becomes_placeholder():
         engine = LLMProbabilityEngine(api_key="test-key")
         engine.estimate("question", "phrase", 0.3, "", 0.0)
 
-        call_kwargs = mock_client.messages.create.call_args
-        messages = call_kwargs.kwargs.get("messages") or call_kwargs[1].get("messages") or call_kwargs[0][4]
+        call_args = mock_client.messages.create.call_args
+        messages = call_args.kwargs["messages"]
         # Check that the placeholder text is in the prompt
         content = messages[0]["content"]
         assert "(Speech has just begun)" in content
@@ -102,8 +102,8 @@ def test_long_transcript_truncated():
         engine = LLMProbabilityEngine(api_key="test-key")
         engine.estimate("question", "phrase", 0.3, long_transcript, 100.0)
 
-        call_kwargs = mock_client.messages.create.call_args
-        messages = call_kwargs.kwargs.get("messages") or call_kwargs[1].get("messages") or call_kwargs[0][4]
+        call_args = mock_client.messages.create.call_args
+        messages = call_args.kwargs["messages"]
         content = messages[0]["content"]
         # The transcript section should be at most 3000 chars of the original
         assert len(content) < len(long_transcript)
